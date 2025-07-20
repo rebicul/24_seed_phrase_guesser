@@ -1,42 +1,75 @@
 
-# Seed Phrase Guesser
+# Understanding the Bitcoin Seed Phrase Guesser
 
 ## Overview
 
-This program was created as an educational demonstration of the immense difficulty in guessing a valid 12 or 24-word Bitcoin seed phrase, as discussed in the article ["Guess My Seed Phrase"](https://www.whatisbitcoin.com/security/guess-my-seed-phrase#Guess_My_12_And_24_Word_Seed_Phrases).
+This document explains the purpose and functionality of the Python program `seed_guesser.py`, which was designed to systematically search for a Bitcoin seed phrase given a known set of 24 words in scrambled order.
 
-The article outlines a challenge where the author dares anyone to guess a seed phrase that holds Bitcoin funds, showcasing how impractical and computationally infeasible it is to brute-force such phrases. This program simulates such a brute-force attempt using a known wordlist and a target Bitcoin address, helping illustrate the scale of the problem.
+## The Challenge: Guessing a 24-Word Seed Phrase
 
-**Disclaimer:** This project is for educational purposes only. Attempting to hack or guess someone's private keys without permission is illegal and unethical.
+The inspiration for this program comes directly from the challenge posed in the article [“Guess My 12 And 24 Word Seed Phrases”](https://www.whatisbitcoin.com/security/guess-my-seed-phrase#Guess_My_12_And_24_Word_Seed_Phrases). The article highlights the immense security provided by BIP-39 mnemonic seed phrases, particularly those with 24 words.
+
+The core challenge is this: if you have a set of 24 words that constitute a Bitcoin seed phrase, but you don't know their correct order, how would you find the specific arrangement that generates a target Bitcoin address?
+
+The mathematical reality is that for 24 unique words, there are:
+
+```
+24! = 620,448,401,733,239,439,360,000
+```
+
+This is an astronomically large number, making a complete brute-force search practically impossible with current technology. This program demonstrates the structure and scale of such a challenge.
 
 ---
 
-## Function Descriptions
+## Program Features
 
-### `save_progress(permutation_index)`
-Saves the current index of the permutation being tested into a file (`progress.txt`). This allows the script to resume from the last saved state in case of interruption.
+### Systematic Permutation Generation
+Uses Python's `itertools.permutations` to systematically generate every unique permutation without duplicates or excess memory usage.
 
-### `load_progress()`
-Reads the `progress.txt` file to determine where the previous run left off, enabling the resume functionality to work efficiently.
+### BIP-39 Validation
+Before wallet derivation, each permutation is validated using the BIP-39 checksum to ensure it's a legitimate mnemonic, saving unnecessary computation.
 
-### `check_permutation(words)`
-Accepts a permutation of words, generates a seed phrase using the BIP39 standard, and derives the associated Bitcoin address using HDWallet. It then checks if the address matches the target Bitcoin address.
+### HD Wallet Derivation
+Uses the `hdwallet` library to convert the seed into addresses using common derivation paths (e.g., BIP-84 Native SegWit). If the derived address matches the target address, the correct permutation has been found.
+
+### Checkpointing (Progress Saving)
+Periodically saves the current permutation index to allow safe resumption after crashes or manual termination.
+
+---
+
+## Function Documentation
+
+### `save_progress(count, job_id)`
+- Saves how many permutations have been checked so far for a given `job_id`.
+- Creates a file: `progress_checkpoint_{job_id}.txt`.
+
+### `load_progress(job_id)`
+- Loads the last saved checkpoint count from file.
+- Returns 0 if no file exists (i.e., first run).
+
+### `check_permutation(word_list_permutation, target_address, mnemonic_checker, derivation_paths)`
+- Builds a 24-word phrase from the permutation.
+- Validates it using BIP-39 rules.
+- Derives Bitcoin addresses using HD wallet paths.
+- Compares derived address to the target.
+- Returns `(True, phrase)` if match is found; otherwise, `(False, None)`.
 
 ### `main()`
-Coordinates the loading of progress, permutation generation, and checking each permutation for a match. It also measures elapsed time and prints progress statistics.
+- Loads checkpoint.
+- Generates permutations of the scrambled words.
+- Checks each permutation against the target address.
+- Saves progress periodically.
 
 ---
 
-## Configuration
+## Limitations and Feasibility
 
-- `SCRAMBLED_WORDS`: A list of 24 BIP39-compatible words used to generate permutations.
-- `TARGET_ADDRESS`: The known Bitcoin address that the program is attempting to match through permutations.
+Even with optimizations and checkpointing, brute-forcing a 24-word phrase remains computationally infeasible. This project is a demonstration tool for:
+- Understanding the scale of the BIP-39 seed space.
+- Testing subset guesses when some word positions are known.
+- Showcasing efficient brute-force design with resume capability.
 
----
-
-## Limitations
-
-This approach is not optimized for speed and is purely demonstrative. Brute-forcing 24-word permutations (24!) is computationally infeasible without astronomical resources.
+**Not intended or suitable for recovering unknown seed phrases without significant prior knowledge.**
 
 ---
 
