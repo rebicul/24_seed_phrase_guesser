@@ -19,7 +19,6 @@ The mathematical reality is that for 24 unique words, there are:
 
 This is an astronomically large number, making a complete brute-force search practically impossible with current technology. This program demonstrates the structure and scale of such a challenge.
 
----
 
 ## Program Features
 
@@ -35,7 +34,6 @@ Uses the `hdwallet` library to convert the seed into addresses using common deri
 ### Checkpointing (Progress Saving)
 Periodically saves the current permutation index to allow safe resumption after crashes or manual termination.
 
----
 
 ## Function Documentation
 
@@ -60,7 +58,6 @@ Periodically saves the current permutation index to allow safe resumption after 
 - Checks each permutation against the target address.
 - Saves progress periodically.
 
----
 
 ## Limitations and Feasibility
 
@@ -71,7 +68,6 @@ Even with optimizations and checkpointing, brute-forcing a 24-word phrase remain
 
 **Not intended or suitable for recovering unknown seed phrases without significant prior knowledge.**
 
----
 
 ## License
 
